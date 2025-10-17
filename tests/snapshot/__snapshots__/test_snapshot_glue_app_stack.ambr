@@ -1,0 +1,208 @@
+# serializer version: 1
+# name: test_glue_app_stack_snapshot
+  dict({
+    'Parameters': dict({
+      'BootstrapVersion': dict({
+        'Default': '/cdk-bootstrap/hnb659fds/version',
+        'Description': 'Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]',
+        'Type': 'AWS::SSM::Parameter::Value<String>',
+      }),
+    }),
+    'Resources': dict({
+      'GlueTestRole299DF719': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'AWS': 'arn:aws:iam::123456789101:root',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'Policies': list([
+            dict({
+              'PolicyDocument': dict({
+                'Statement': list([
+                  dict({
+                    'Action': list([
+                      'glue:GetJobs',
+                      'glue:GetJobRun',
+                      'glue:GetTags',
+                      'glue:StartJobRun',
+                    ]),
+                    'Effect': 'Allow',
+                    'Resource': '*',
+                  }),
+                ]),
+                'Version': '2012-10-17',
+              }),
+              'PolicyName': 'GluePolicy',
+            }),
+          ]),
+          'RoleName': 'glue-test-dev',
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+      'ProcessLegislators18B04980': dict({
+        'Properties': dict({
+          'Command': dict({
+            'Name': 'glueetl',
+            'PythonVersion': '3',
+            'ScriptLocation': dict({
+              'Fn::Join': list([
+                '',
+                list([
+                  's3://',
+                  dict({
+                    'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1',
+                  }),
+                  '/082f7775a87088f156e9216cc34d11dc8f91ccfb9440f08c232039a616eec066.py',
+                ]),
+              ]),
+            }),
+          }),
+          'DefaultArguments': dict({
+            '--input_path': 's3://path_to_data/',
+            '--job-language': 'python',
+          }),
+          'Description': 'an example PySpark job',
+          'GlueVersion': '4.0',
+          'Role': dict({
+            'Fn::GetAtt': list([
+              'ProcessLegislatorsServiceRoleE21E0CFA',
+              'Arn',
+            ]),
+          }),
+          'Tags': dict({
+            'artifact_id': 'TestGlueAppStack',
+            'environment': 'aws://unknown-account/us-east-1',
+            'stack_id': dict({
+              'Ref': 'AWS::StackId',
+            }),
+            'stack_name': 'TestGlueAppStack',
+          }),
+        }),
+        'Type': 'AWS::Glue::Job',
+      }),
+      'ProcessLegislatorsServiceRoleDefaultPolicyFAD2FE59': dict({
+        'Properties': dict({
+          'PolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': list([
+                  's3:GetObject*',
+                  's3:GetBucket*',
+                  's3:List*',
+                ]),
+                'Effect': 'Allow',
+                'Resource': list([
+                  dict({
+                    'Fn::Join': list([
+                      '',
+                      list([
+                        'arn:',
+                        dict({
+                          'Ref': 'AWS::Partition',
+                        }),
+                        ':s3:::',
+                        dict({
+                          'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1',
+                        }),
+                      ]),
+                    ]),
+                  }),
+                  dict({
+                    'Fn::Join': list([
+                      '',
+                      list([
+                        'arn:',
+                        dict({
+                          'Ref': 'AWS::Partition',
+                        }),
+                        ':s3:::',
+                        dict({
+                          'Fn::Sub': 'cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1',
+                        }),
+                        '/*',
+                      ]),
+                    ]),
+                  }),
+                ]),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'PolicyName': 'ProcessLegislatorsServiceRoleDefaultPolicyFAD2FE59',
+          'Roles': list([
+            dict({
+              'Ref': 'ProcessLegislatorsServiceRoleE21E0CFA',
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Policy',
+      }),
+      'ProcessLegislatorsServiceRoleE21E0CFA': dict({
+        'Properties': dict({
+          'AssumeRolePolicyDocument': dict({
+            'Statement': list([
+              dict({
+                'Action': 'sts:AssumeRole',
+                'Effect': 'Allow',
+                'Principal': dict({
+                  'Service': 'glue.amazonaws.com',
+                }),
+              }),
+            ]),
+            'Version': '2012-10-17',
+          }),
+          'ManagedPolicyArns': list([
+            dict({
+              'Fn::Join': list([
+                '',
+                list([
+                  'arn:',
+                  dict({
+                    'Ref': 'AWS::Partition',
+                  }),
+                  ':iam::aws:policy/service-role/AWSGlueServiceRole',
+                ]),
+              ]),
+            }),
+          ]),
+        }),
+        'Type': 'AWS::IAM::Role',
+      }),
+    }),
+    'Rules': dict({
+      'CheckBootstrapVersion': dict({
+        'Assertions': list([
+          dict({
+            'Assert': dict({
+              'Fn::Not': list([
+                dict({
+                  'Fn::Contains': list([
+                    list([
+                      '1',
+                      '2',
+                      '3',
+                      '4',
+                      '5',
+                    ]),
+                    dict({
+                      'Ref': 'BootstrapVersion',
+                    }),
+                  ]),
+                }),
+              ]),
+            }),
+            'AssertDescription': "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+          }),
+        ]),
+      }),
+    }),
+  })
+# ---

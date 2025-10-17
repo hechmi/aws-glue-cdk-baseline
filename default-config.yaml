@@ -1,13 +1,13 @@
 pipelineAccount:
-  awsAccountId: 123456789101
+  awsAccountId: 009507777973
   awsRegion: us-east-1
 
 devAccount:
-  awsAccountId: 123456789102
+  awsAccountId: 095929019002
   awsRegion: us-east-1
 
 prodAccount:
-  awsAccountId: 123456789103
+  awsAccountId: 981445861826
   awsRegion: us-east-1
 
 dev:

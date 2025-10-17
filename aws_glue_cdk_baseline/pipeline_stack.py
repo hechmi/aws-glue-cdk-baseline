@@ -9,6 +9,7 @@ from aws_cdk import (
 )
 from constructs import Construct
 from aws_cdk.pipelines import CodePipeline, CodePipelineSource, CodeBuildStep, ManualApprovalStep, ShellStep
+from aws_cdk import aws_codebuild as codebuild
 from helper import create_archive
 from aws_glue_cdk_baseline.glue_app_stage import GlueAppStage
 
@@ -44,6 +45,9 @@ class PipelineStack(Stack):
             docker_enabled_for_synth=True,
             synth=CodeBuildStep("CdkSynth_UnitTest",
                 input=source,
+                build_environment=codebuild.BuildEnvironment(
+                    build_image=codebuild.LinuxBuildImage.STANDARD_7_0
+                ),
                 install_commands=[
                     "pip install -r requirements-dev.txt",
                     "pip install -r requirements.txt",
@@ -117,6 +121,9 @@ class PipelineStack(Stack):
         # Integ test
         dev_stage.add_post(CodeBuildStep("IntegrationTest",
                 input=source,
+                build_environment=codebuild.BuildEnvironment(
+                    build_image=codebuild.LinuxBuildImage.STANDARD_7_0
+                ),
                 install_commands=[
                     "pip install -r requirements-dev.txt"
                 ],
