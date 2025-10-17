@@ -10,6 +10,7 @@ from aws_cdk import (
 from constructs import Construct
 from aws_cdk.pipelines import CodePipeline, CodePipelineSource, CodeBuildStep, ManualApprovalStep, ShellStep
 from aws_cdk import aws_codebuild as codebuild
+from aws_cdk import pipelines
 from helper import create_archive
 from aws_glue_cdk_baseline.glue_app_stage import GlueAppStage
 
@@ -43,6 +44,11 @@ class PipelineStack(Stack):
             pipeline_name="GluePipeline",
             cross_account_keys=True,
             docker_enabled_for_synth=True,
+            code_build_defaults=pipelines.CodeBuildOptions(
+                build_environment=codebuild.BuildEnvironment(
+                    build_image=codebuild.LinuxBuildImage.STANDARD_7_0
+                )
+            ),
             synth=CodeBuildStep("CdkSynth_UnitTest",
                 input=source,
                 build_environment=codebuild.BuildEnvironment(
