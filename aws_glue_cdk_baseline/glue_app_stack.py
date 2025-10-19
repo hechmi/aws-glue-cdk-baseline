@@ -13,24 +13,10 @@ class GlueAppStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, config:Dict, stage:str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        self.glue_job = glue.Job(self, "ProcessLegislators",
-            executable=glue.JobExecutable.python_etl(
-                glue_version=glue.GlueVersion.V4_0,
-                python_version=glue.PythonVersion.THREE,
-                script=glue.Code.from_asset(
-                    path.join(path.dirname(__file__), "job_scripts/process_legislators.py")
-                )
-            ),
-            description="an example PySpark job",
-            default_arguments={
-                "--input_path": config[stage]['jobs']['ProcessLegislators']['inputLocation']
-            },
-            tags={
-                "environment": self.environment,
-                "artifact_id": self.artifact_id,
-                "stack_id": self.stack_id,
-                "stack_name": self.stack_name
-            }
+        # Create cross-account role
+        self.cross_account_role = self.create_cross_account_role(
+            f"GlueCrossAccountRole-{stage}",
+            str(config['pipelineAccount']['awsAccountId'])
         )
 
         # For integration test
@@ -55,7 +41,15 @@ class GlueAppStack(Stack):
                 )
             }
         )
-
+    def create_cross_account_role(self, role_name: str, trusted_account_id: str):
+        return iam.Role(self, f"{role_name}CrossAccountRole",
+            role_name=role_name,
+            assumed_by=iam.AccountPrincipal(trusted_account_id),
+            managed_policies=[iam.ManagedPolicy.from_aws_managed_policy_name("AdministratorAccess")]
+        )
     @property
     def iam_role_arn(self):
         return self.iam_role.role_arn
+    @property
+    def cross_account_role_arn(self):
+        return self.glue_app_stack.cross_account_role_arn
